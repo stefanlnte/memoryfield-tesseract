@@ -4,47 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Memoryfield · Tesseract | Hari Seldon's Psychohistory Lens</title>
-    <!-- IBM Plex Mono + subtle geometric vibe -->
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none; /* optional, keeps immersive feel */
         }
 
         body {
             background: #050508;
-            overflow-x: hidden;
+            overflow: hidden;
             font-family: 'IBM Plex Mono', monospace;
             color: #e4e4e7;
         }
 
-        /* custom scroll */
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #18181b;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #f59e0b;
-            border-radius: 4px;
-        }
-
-        /* main tesseract container */
         .tesseract-scene {
             position: relative;
             width: 100%;
             height: 100vh;
             background: radial-gradient(circle at 30% 20%, #0a0a0f, #010101);
             overflow: hidden;
-            isolation: isolate;
         }
 
-        /* canvas for 3D hypercube + dynamic field lines */
         #canvas-tesseract {
             position: absolute;
             top: 0;
@@ -55,7 +36,6 @@
             z-index: 1;
         }
 
-        /* overlay UI: inspired by Seldon's Prime Radiant / Memoryfield panel */
         .data-panel {
             position: absolute;
             bottom: 24px;
@@ -76,9 +56,7 @@
             border: 1px solid rgba(245, 158, 11, 0.25);
             border-radius: 24px;
             padding: 14px 20px;
-            font-family: 'IBM Plex Mono', monospace;
             pointer-events: auto;
-            transition: all 0.2s ease;
         }
 
         .metric-panel {
@@ -106,7 +84,6 @@
             font-size: 1.6rem;
             font-weight: 500;
             color: #f59e0b;
-            font-family: 'IBM Plex Mono', monospace;
             line-height: 1;
         }
         .metric-unit {
@@ -142,7 +119,6 @@
             justify-content: space-between;
             font-size: 10px;
             margin: 6px 0;
-            font-family: monospace;
         }
         .corr-bar-bg {
             width: 80px;
@@ -154,7 +130,6 @@
         .corr-fill {
             background: #f59e0b;
             height: 100%;
-            width: 0%;
         }
 
         .title-header {
@@ -185,7 +160,6 @@
             text-align: right;
             font-size: 9px;
             color: #52525b;
-            font-family: monospace;
             background: rgba(0,0,0,0.4);
             padding: 8px 12px;
             border-radius: 20px;
@@ -197,12 +171,6 @@
         @media (max-width: 720px) {
             .metric-value { font-size: 1.2rem; }
             .metric-panel { padding: 8px 16px; gap: 12px; }
-            .glass-card { padding: 8px 14px; }
-        }
-        button {
-            background: none;
-            border: none;
-            color: inherit;
         }
     </style>
 </head>
@@ -212,19 +180,19 @@
 
     <div class="title-header">
         <h1>⚛️ MEMORYFIELD · TESSERACT</h1>
-        <p>HARI SELDON PSYCHOHISTORY PRIME RADIANT — v. 24.12</p>
+        <p>HARI SELDON PSYCHOHISTORY PRIME RADIANT — v.24.12</p>
     </div>
 
     <div class="data-panel">
         <div class="metric-panel">
             <div class="metric-item">
                 <div class="metric-label">FIELD COHERENCE</div>
-                <div class="metric-value"><span id="coherenceVal">0.847</span><span class="metric-unit">χ</span><span class="trend-badge" id="cohTrend">⟳</span></div>
+                <div class="metric-value"><span id="coherenceVal">0.847</span><span class="metric-unit">χ</span></div>
                 <div style="width:100px; margin-top:6px;"><div style="height:2px; background:#27272a;"><div id="coherenceBar" style="width:84.7%; height:100%; background:#f59e0b;"></div></div></div>
             </div>
             <div class="metric-item">
                 <div class="metric-label">ENTROPY</div>
-                <div class="metric-value"><span id="entropyVal">2.34</span><span class="metric-unit">Ω</span><span class="trend-badge" id="entTrend">↘︎</span></div>
+                <div class="metric-value"><span id="entropyVal">2.34</span><span class="metric-unit">Ω</span></div>
                 <div style="width:100px; margin-top:6px;"><div style="height:2px; background:#27272a;"><div id="entropyBar" style="width:78%; height:100%; background:#a1a1aa;"></div></div></div>
             </div>
             <div class="metric-item">
@@ -246,48 +214,56 @@
         </div>
     </div>
     <div class="seldon-quote">
-        “The psychohistorical trend is visible only in the aggregate.”<br> — Hari Seldon, 12,067 G.E.
+        “The psychohistorical trend is visible only in the aggregate.”<br> — Hari Seldon
     </div>
 </div>
 
-<script>
-    // ---- ECONOMIC NODES (same as original system, integrated with hypercube) ----
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+        }
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+    // Economic nodes data
     const NODES = [
-        { id: 'ASM-001', name: 'Energy', value: 78, trend: 2.3, x: 1.2, y: -1.4, z: 0.8, color: '#f59e0b' },
-        { id: 'ASM-002', name: 'Supply', value: 65, trend: -1.2, x: 1.5, y: 0.2, z: -0.4, color: '#eab308' },
-        { id: 'ASM-003', name: 'Food', value: 71, trend: 0.8, x: 0.4, y: 1.3, z: -0.9, color: '#facc15' },
-        { id: 'ASM-004', name: 'Currency', value: 82, trend: 3.1, x: -0.6, y: 1.4, z: 0.5, color: '#f59e0b' },
-        { id: 'ASM-005', name: 'Debt', value: 59, trend: -2.4, x: -1.3, y: 0.2, z: 1.1, color: '#d97706' },
-        { id: 'ASM-006', name: 'Labor', value: 68, trend: 1.5, x: -1.0, y: -1.1, z: -0.3, color: '#fbbf24' },
-        { id: 'ASM-007', name: 'Tech', value: 74, trend: 4.2, x: 0.2, y: -1.5, z: -0.9, color: '#fb923c' },
-        { id: 'ASM-008', name: 'Resource', value: 61, trend: -0.9, x: 1.0, y: -0.2, z: -1.2, color: '#fcd34d' },
-        { id: 'ASM-009', name: 'Trade', value: 77, trend: 1.8, x: -0.3, y: 1.1, z: 1.3, color: '#f59e0b' },
-        { id: 'ASM-010', name: 'Manufacturing', value: 70, trend: 0.3, x: 1.2, y: 0.9, z: 0.1, color: '#eab308' },
-        { id: 'ASM-011', name: 'Digital', value: 85, trend: 5.1, x: -1.1, y: -0.7, z: 1.2, color: '#f97316' }
+        { id: 'ASM-001', name: 'Energy', value: 78, trend: 2.3, color: '#f59e0b' },
+        { id: 'ASM-002', name: 'Supply', value: 65, trend: -1.2, color: '#eab308' },
+        { id: 'ASM-003', name: 'Food', value: 71, trend: 0.8, color: '#facc15' },
+        { id: 'ASM-004', name: 'Currency', value: 82, trend: 3.1, color: '#f59e0b' },
+        { id: 'ASM-005', name: 'Debt', value: 59, trend: -2.4, color: '#d97706' },
+        { id: 'ASM-006', name: 'Labor', value: 68, trend: 1.5, color: '#fbbf24' },
+        { id: 'ASM-007', name: 'Tech', value: 74, trend: 4.2, color: '#fb923c' },
+        { id: 'ASM-008', name: 'Resource', value: 61, trend: -0.9, color: '#fcd34d' },
+        { id: 'ASM-009', name: 'Trade', value: 77, trend: 1.8, color: '#f59e0b' },
+        { id: 'ASM-010', name: 'Manufacturing', value: 70, trend: 0.3, color: '#eab308' },
+        { id: 'ASM-011', name: 'Digital', value: 85, trend: 5.1, color: '#f97316' }
     ];
 
-    // correlations (original + additional to enrich psychohistory web)
     const CORRELATIONS = {
         'ASM-001-ASM-002': 0.84, 'ASM-001-ASM-005': 0.72, 'ASM-002-ASM-003': 0.68,
         'ASM-004-ASM-005': 0.91, 'ASM-004-ASM-008': 0.76, 'ASM-008-ASM-009': 0.81,
         'ASM-009-ASM-011': 0.69, 'ASM-007-ASM-011': 0.74, 'ASM-003-ASM-006': 0.65,
-        'ASM-006-ASM-010': 0.70, 'ASM-002-ASM-010': 0.67, 'ASM-005-ASM-007': 0.73,
-        'ASM-010-ASM-011': 0.82, 'ASM-001-ASM-009': 0.79
+        'ASM-006-ASM-010': 0.70, 'ASM-010-ASM-011': 0.82
     };
 
     function getCorrelation(a, b) {
         if (a === b) return 1;
         const k1 = `${a}-${b}`, k2 = `${b}-${a}`;
-        return CORRELATIONS[k1] || CORRELATIONS[k2] || (Math.random() * 0.3 + 0.35);
+        return CORRELATIONS[k1] || CORRELATIONS[k2] || 0.5;
     }
 
-    // ---- Three.js Tesseract (Hypercube) + Node Spheres + Dynamic field edges ----
-    import * as THREE from 'https://unpkg.com/three@0.128.0/build/three.module.js';
-    import { OrbitControls } from 'https://unpkg.com/three@0.128.0/examples/jsm/controls/OrbitControls.js';
-
+    // Setup scene
     const canvas = document.getElementById('canvas-tesseract');
     const scene = new THREE.Scene();
-    scene.background = null; // transparent for radial gradient underneath
+    scene.background = null;
     scene.fog = new THREE.FogExp2(0x050508, 0.008);
     
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -297,65 +273,16 @@
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setClearColor(0x000000, 0);
     
-    // controls for interactive tesseract (feel of Seldon's Prime Radiant)
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.8;
     controls.enableZoom = true;
-    controls.enablePan = false;
     controls.target.set(0, 0, 0);
     
-    // ---- Hypercube (tesseract) wireframe ----
-    // vertices of a tesseract: 16 points (±1, ±1, ±1, ±1) but projecting 3D: two cubes offset.
-    const outerVertices = [
-        [-1, -1, -1], [ 1, -1, -1], [ 1, -1,  1], [-1, -1,  1], // bottom cube outer
-        [-1,  1, -1], [ 1,  1, -1], [ 1,  1,  1], [-1,  1,  1]  // top cube outer
-    ];
-    const innerVertices = outerVertices.map(v => v.map(c => c * 0.6));
-    // edges: connect each vertex to its adjacent neighbors (cube edges) and corresponding vertex between cubes
-    const edgesPairs = [];
-    // outer cube edges
-    const cubeEdges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
-    cubeEdges.forEach(e => { edgesPairs.push([outerVertices[e[0]], outerVertices[e[1]]]); });
-    // inner cube edges
-    cubeEdges.forEach(e => { edgesPairs.push([innerVertices[e[0]], innerVertices[e[1]]]); });
-    // connect outer to inner (same index)
-    for(let i=0; i<outerVertices.length; i++) {
-        edgesPairs.push([outerVertices[i], innerVertices[i]]);
-    }
-    // extra diagonals for aesthetic tesseract complexity (some cross edges)
-    const extraCross = [[0,5],[1,4],[2,7],[3,6],[0,6],[1,7],[2,4],[3,5]];
-    extraCross.forEach(e => {
-        edgesPairs.push([outerVertices[e[0]], outerVertices[e[1]]]);
-        edgesPairs.push([innerVertices[e[0]], innerVertices[e[1]]]);
-    });
-    
-    const tesseractGroup = new THREE.Group();
-    const edgeMaterial = new THREE.LineBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.35 });
-    edgesPairs.forEach(pair => {
-        const points = [new THREE.Vector3(pair[0][0], pair[0][1], pair[0][2]), new THREE.Vector3(pair[1][0], pair[1][1], pair[1][2])];
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        const line = new THREE.Line(geometry, edgeMaterial);
-        tesseractGroup.add(line);
-    });
-    
-    // glow effect for inner core (psychohistory resonance)
-    const coreGlow = new THREE.Mesh(
-        new THREE.SphereGeometry(0.28, 16, 16),
-        new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xf59e0b, emissiveIntensity: 1.2, transparent: true, opacity: 0.7 })
-    );
-    tesseractGroup.add(coreGlow);
-    scene.add(tesseractGroup);
-    
-    // ---- Economic Node Spheres + floating labels ----
-    const nodeMeshes = [];
-    const nodeLabels = [];
-    // helper to make CSS2DRenderer for text labels
-    import { CSS2DRenderer, CSS2DObject } from 'https://unpkg.com/three@0.128.0/examples/jsm/renderers/CSS2DRenderer.js';
+    // CSS2DRenderer for text labels
     const labelRenderer = new CSS2DRenderer();
     labelRenderer.setSize(window.innerWidth, window.innerHeight);
     labelRenderer.domElement.style.position = 'absolute';
@@ -365,60 +292,93 @@
     labelRenderer.domElement.style.zIndex = '10';
     document.querySelector('.tesseract-scene').appendChild(labelRenderer.domElement);
     
-    // Normalize node positions to be on a sphere / hypercube surface (make them orbit tesseract)
+    // Create Tesseract (Hypercube)
+    const outerVertices = [
+        [-1, -1, -1], [ 1, -1, -1], [ 1, -1,  1], [-1, -1,  1],
+        [-1,  1, -1], [ 1,  1, -1], [ 1,  1,  1], [-1,  1,  1]
+    ];
+    const innerVertices = outerVertices.map(v => v.map(c => c * 0.6));
+    
+    const edgesPairs = [];
+    const cubeEdges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+    
+    cubeEdges.forEach(e => { edgesPairs.push([outerVertices[e[0]], outerVertices[e[1]]]); });
+    cubeEdges.forEach(e => { edgesPairs.push([innerVertices[e[0]], innerVertices[e[1]]]); });
+    for(let i = 0; i < outerVertices.length; i++) {
+        edgesPairs.push([outerVertices[i], innerVertices[i]]);
+    }
+    
+    const tesseractGroup = new THREE.Group();
+    const edgeMaterial = new THREE.LineBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.4 });
+    
+    edgesPairs.forEach(pair => {
+        const points = [new THREE.Vector3(pair[0][0], pair[0][1], pair[0][2]), new THREE.Vector3(pair[1][0], pair[1][1], pair[1][2])];
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const line = new THREE.Line(geometry, edgeMaterial);
+        tesseractGroup.add(line);
+    });
+    
+    // Core glow
+    const coreGlow = new THREE.Mesh(
+        new THREE.SphereGeometry(0.28, 32, 32),
+        new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xf59e0b, emissiveIntensity: 1.0 })
+    );
+    tesseractGroup.add(coreGlow);
+    scene.add(tesseractGroup);
+    
+    // Position nodes on a sphere around the tesseract
+    const nodeMeshes = [];
+    
     NODES.forEach((node, idx) => {
-        // distribute around tesseract radius ~ 1.8
-        const theta = (idx / NODES.length) * Math.PI * 2;
-        const phi = Math.acos(2 * (idx % 5) / 5 - 1);
-        const rad = 1.9;
-        const px = Math.sin(phi) * Math.cos(theta) * rad;
-        const py = Math.sin(phi) * Math.sin(theta) * rad * 0.9;
-        const pz = Math.cos(phi) * rad;
-        node.x3 = px;
-        node.y3 = py;
-        node.z3 = pz;
+        const angle = (idx / NODES.length) * Math.PI * 2;
+        const radius = 2.2;
+        const x = Math.cos(angle) * radius;
+        const z = Math.sin(angle) * radius;
+        const y = Math.sin(angle * 2) * 0.8;
         
-        const sphereMat = new THREE.MeshStandardMaterial({ color: node.color, emissive: '#f59e0b', emissiveIntensity: 0.2, metalness: 0.6, roughness: 0.3 });
-        const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.22, 24, 24), sphereMat);
+        node.x3 = x;
+        node.y3 = y;
+        node.z3 = z;
+        
+        const sphereMat = new THREE.MeshStandardMaterial({ color: node.color, emissive: '#f59e0b', emissiveIntensity: 0.3 });
+        const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.22, 32, 32), sphereMat);
         sphere.userData = { nodeId: node.id, nodeData: node };
-        sphere.position.set(px, py, pz);
+        sphere.position.set(x, y, z);
         scene.add(sphere);
         nodeMeshes.push(sphere);
         
-        // CSS2D Label
+        // Label
         const div = document.createElement('div');
-        div.textContent = `${node.name.slice(0,4)} ${node.value}`;
+        div.textContent = `${node.name} ${node.value}`;
         div.style.color = '#f5deb3';
         div.style.fontSize = '11px';
         div.style.fontFamily = "'IBM Plex Mono', monospace";
-        div.style.background = 'rgba(0,0,0,0.6)';
-        div.style.padding = '2px 6px';
+        div.style.background = 'rgba(0,0,0,0.7)';
+        div.style.padding = '2px 8px';
         div.style.borderRadius = '20px';
-        div.style.border = '1px solid rgba(245,158,11,0.4)';
+        div.style.border = '1px solid rgba(245,158,11,0.5)';
         div.style.backdropFilter = 'blur(4px)';
-        div.style.pointerEvents = 'none';
         div.style.whiteSpace = 'nowrap';
         const labelObj = new CSS2DObject(div);
-        labelObj.position.set(px, py + 0.35, pz);
+        labelObj.position.set(x, y + 0.35, z);
         scene.add(labelObj);
-        nodeLabels.push(labelObj);
     });
     
-    // Edge lines based on correlations (strength > 0.68 => dynamic psychohistorical flux)
+    // Add connection lines between correlated nodes
     const edgeLines = [];
     function updateEdges() {
-        // remove old edges
         edgeLines.forEach(line => scene.remove(line));
         edgeLines.length = 0;
-        for(let i=0; i<NODES.length; i++) {
-            for(let j=i+1; j<NODES.length; j++) {
+        
+        for(let i = 0; i < NODES.length; i++) {
+            for(let j = i + 1; j < NODES.length; j++) {
                 const corr = getCorrelation(NODES[i].id, NODES[j].id);
-                if(corr > 0.68) {
-                    const pos1 = { x: NODES[i].x3, y: NODES[i].y3, z: NODES[i].z3 };
-                    const pos2 = { x: NODES[j].x3, y: NODES[j].y3, z: NODES[j].z3 };
-                    const points = [new THREE.Vector3(pos1.x, pos1.y, pos1.z), new THREE.Vector3(pos2.x, pos2.y, pos2.z)];
+                if(corr > 0.65) {
+                    const p1 = new THREE.Vector3(NODES[i].x3, NODES[i].y3, NODES[i].z3);
+                    const p2 = new THREE.Vector3(NODES[j].x3, NODES[j].y3, NODES[j].z3);
+                    const points = [p1, p2];
                     const geometry = new THREE.BufferGeometry().setFromPoints(points);
-                    const material = new THREE.LineBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: Math.min(0.8, corr * 0.9) });
+                    const material = new THREE.LineBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: corr * 0.8 });
                     const line = new THREE.Line(geometry, material);
                     scene.add(line);
                     edgeLines.push(line);
@@ -428,8 +388,8 @@
     }
     updateEdges();
     
-    // lighting
-    const ambientLight = new THREE.AmbientLight(0x111118);
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0x222222);
     scene.add(ambientLight);
     const mainLight = new THREE.DirectionalLight(0xffdd99, 1);
     mainLight.position.set(2, 3, 4);
@@ -437,138 +397,111 @@
     const backLight = new THREE.PointLight(0xf59e0b, 0.5);
     backLight.position.set(-1, 1, -2);
     scene.add(backLight);
-    const fillLight = new THREE.PointLight(0x4466aa, 0.3);
-    fillLight.position.set(1, 2, 2);
-    scene.add(fillLight);
     
-    // field particles (entropy / coherence visual)
-    const particleCount = 800;
+    // Particle system
+    const particleCount = 1500;
     const particleGeo = new THREE.BufferGeometry();
     const particlePositions = new Float32Array(particleCount * 3);
-    for(let i=0; i<particleCount; i++) {
-        particlePositions[i*3] = (Math.random() - 0.5) * 6;
-        particlePositions[i*3+1] = (Math.random() - 0.5) * 5;
-        particlePositions[i*3+2] = (Math.random() - 0.5) * 6;
+    for(let i = 0; i < particleCount; i++) {
+        particlePositions[i*3] = (Math.random() - 0.5) * 8;
+        particlePositions[i*3+1] = (Math.random() - 0.5) * 6;
+        particlePositions[i*3+2] = (Math.random() - 0.5) * 8;
     }
     particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-    const particleMat = new THREE.PointsMaterial({ color: 0xf59e0b, size: 0.03, transparent: true, opacity: 0.4 });
+    const particleMat = new THREE.PointsMaterial({ color: 0xf59e0b, size: 0.03, transparent: true, opacity: 0.3 });
     const particleSystem = new THREE.Points(particleGeo, particleMat);
     scene.add(particleSystem);
     
-    // ---- UI dynamic field data (Seldon metrics) ----
+    // Field data simulation
     let fieldData = { coherence: 0.847, entropy: 2.34, persistence: 0.91, crisis: 0.42 };
-    let lastTimestamp = 0;
+    
     function updateFieldMetrics() {
-        const coherenceEl = document.getElementById('coherenceVal');
-        const entropyEl = document.getElementById('entropyVal');
-        const persistenceEl = document.getElementById('persistenceVal');
-        const crisisEl = document.getElementById('crisisIdx');
-        const coherenceBar = document.getElementById('coherenceBar');
-        const entropyBar = document.getElementById('entropyBar');
-        const persistenceBar = document.getElementById('persistenceBar');
-        const crisisBar = document.getElementById('crisisBar');
-        if(coherenceEl) coherenceEl.innerText = fieldData.coherence.toFixed(3);
-        if(entropyEl) entropyEl.innerText = fieldData.entropy.toFixed(2);
-        if(persistenceEl) persistenceEl.innerText = fieldData.persistence.toFixed(2);
-        if(crisisEl) crisisEl.innerText = fieldData.crisis.toFixed(2);
-        if(coherenceBar) coherenceBar.style.width = `${fieldData.coherence * 100}%`;
-        if(entropyBar) entropyBar.style.width = `${(fieldData.entropy / 3.5) * 100}%`;
-        if(persistenceBar) persistenceBar.style.width = `${fieldData.persistence * 100}%`;
-        if(crisisBar) crisisBar.style.width = `${fieldData.crisis * 100}%`;
-        // trend indicators
-        const cohTrend = document.getElementById('cohTrend');
-        if(cohTrend) cohTrend.innerText = fieldData.coherence > 0.84 ? '↑' : '↓';
-        const entTrend = document.getElementById('entTrend');
-        if(entTrend) entTrend.innerText = fieldData.entropy < 2.4 ? '↘︎' : '↗︎';
+        document.getElementById('coherenceVal').innerText = fieldData.coherence.toFixed(3);
+        document.getElementById('entropyVal').innerText = fieldData.entropy.toFixed(2);
+        document.getElementById('persistenceVal').innerText = fieldData.persistence.toFixed(2);
+        document.getElementById('crisisIdx').innerText = fieldData.crisis.toFixed(2);
+        document.getElementById('coherenceBar').style.width = `${fieldData.coherence * 100}%`;
+        document.getElementById('entropyBar').style.width = `${(fieldData.entropy / 3.5) * 100}%`;
+        document.getElementById('persistenceBar').style.width = `${fieldData.persistence * 100}%`;
+        document.getElementById('crisisBar').style.width = `${fieldData.crisis * 100}%`;
     }
     
-    // interactive node selection (raycaster)
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    window.addEventListener('click', (event) => {
-        mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
-        mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(nodeMeshes);
-        if(intersects.length) {
-            const node = intersects[0].object.userData.nodeData;
-            showNodePanel(node);
-        } else {
-            document.getElementById('nodeInfoPanel').style.display = 'none';
-        }
-    });
-    
-    function showNodePanel(node) {
-        const panel = document.getElementById('nodeInfoPanel');
-        if(!panel) return;
-        panel.style.display = 'block';
-        document.getElementById('selectedNodeName').innerText = node.name;
-        document.getElementById('nodeValueBadge').innerHTML = `val: ${node.value} ${node.trend>0?'↑':'↓'}${Math.abs(node.trend)}`;
-        document.getElementById('nodeTrendInfo').innerHTML = `trend: ${node.trend>0?'expansion':'contraction'} (${node.trend}%) · influence: ${(getCorrelation(node.id, 'ASM-011')*100).toFixed(0)}% digital`;
-        const corrListDiv = document.getElementById('correlationList');
-        corrListDiv.innerHTML = '';
-        NODES.filter(n => n.id !== node.id).slice(0,5).forEach(other => {
-            const corr = getCorrelation(node.id, other.id);
-            if(corr > 0.3) {
-                const row = document.createElement('div');
-                row.className = 'corr-row';
-                row.innerHTML = `<span>${other.name}</span><div style="display:flex; gap:8px;"><div class="corr-bar-bg"><div class="corr-fill" style="width:${corr*100}%"></div></div><span style="color:#f59e0b;">${corr.toFixed(2)}</span></div>`;
-                corrListDiv.appendChild(row);
-            }
-        });
-    }
-    
-    // simulate field evolution (entropy/coherence as psychohistory)
     setInterval(() => {
         fieldData.coherence = Math.min(0.99, Math.max(0.65, fieldData.coherence + (Math.random() - 0.5) * 0.012));
         fieldData.entropy = Math.min(3.2, Math.max(1.6, fieldData.entropy + (Math.random() - 0.5) * 0.045));
         fieldData.persistence = Math.min(0.98, Math.max(0.78, fieldData.persistence + (Math.random() - 0.5) * 0.008));
         fieldData.crisis = Math.min(0.95, Math.max(0.1, fieldData.crisis + (Math.random() - 0.5) * 0.02));
         updateFieldMetrics();
-        // dynamic particle opacity based on entropy
-        particleMat.opacity = 0.3 + (fieldData.entropy / 6);
-        // update tesseract edge glow intensity
+        
+        // Dynamic effects
         coreGlow.material.emissiveIntensity = 0.7 + fieldData.coherence * 0.8;
         edgeMaterial.opacity = 0.25 + fieldData.coherence * 0.5;
-        // auto-rotate speed influenced by coherence (Seldon chaos)
         controls.autoRotateSpeed = 0.5 + (1 - fieldData.coherence) * 0.9;
-    }, 2800);
+    }, 3000);
     
-    // animate node values shimmer & slight orbital motion (micro-changes)
+    // Raycaster for node selection
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    
+    window.addEventListener('click', (event) => {
+        mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+        mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(nodeMeshes);
+        
+        if(intersects.length > 0) {
+            const node = intersects[0].object.userData.nodeData;
+            const panel = document.getElementById('nodeInfoPanel');
+            panel.style.display = 'block';
+            document.getElementById('selectedNodeName').innerText = node.name;
+            document.getElementById('nodeValueBadge').innerHTML = `val: ${node.value} ${node.trend > 0 ? '↑' : '↓'}${Math.abs(node.trend)}`;
+            document.getElementById('nodeTrendInfo').innerHTML = `trend: ${node.trend > 0 ? 'expansion' : 'contraction'} (${Math.abs(node.trend)}%)`;
+            
+            const corrListDiv = document.getElementById('correlationList');
+            corrListDiv.innerHTML = '<strong style="font-size:9px;">KEY CORRELATIONS</strong>';
+            
+            NODES.filter(n => n.id !== node.id).forEach(other => {
+                const corr = getCorrelation(node.id, other.id);
+                if(corr > 0.4) {
+                    const row = document.createElement('div');
+                    row.className = 'corr-row';
+                    row.innerHTML = `<span>${other.name}</span><div style="display:flex; gap:8px;"><div class="corr-bar-bg"><div class="corr-fill" style="width:${corr*100}%"></div></div><span style="color:#f59e0b;">${corr.toFixed(2)}</span></div>`;
+                    corrListDiv.appendChild(row);
+                }
+            });
+        } else {
+            document.getElementById('nodeInfoPanel').style.display = 'none';
+        }
+    });
+    
+    // Animation loop
     let time = 0;
     function animate() {
         requestAnimationFrame(animate);
-        time += 0.008;
+        time += 0.01;
+        
         nodeMeshes.forEach((mesh, idx) => {
-            const node = NODES[idx];
-            if(node) {
-                const pulse = 0.02 + Math.sin(time * 2 + idx) * 0.01;
-                mesh.scale.setScalar(1 + pulse);
-                const mat = mesh.material;
-                mat.emissiveIntensity = 0.2 + (node.value / 100) * 0.5;
-            }
+            const pulse = 1 + Math.sin(time * 3 + idx) * 0.05;
+            mesh.scale.setScalar(pulse);
         });
-        controls.update(); // handles auto-rotate if enabled
+        
+        controls.update();
         renderer.render(scene, camera);
         labelRenderer.render(scene, camera);
     }
-    animate();
     
-    // responsiveness
-    window.addEventListener('resize', onWindowResize, false);
-    function onWindowResize() {
+    animate();
+    updateFieldMetrics();
+    
+    // Handle resize
+    window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
         labelRenderer.setSize(window.innerWidth, window.innerHeight);
-    }
+    });
     
-    updateFieldMetrics();
-    // small intro panel reset after 4 sec (for style)
-    setTimeout(() => {
-        const panelNode = document.getElementById('nodeInfoPanel');
-        if(panelNode) panelNode.style.display = 'none';
-    }, 100);
+    console.log('Tesseract initialized!');
 </script>
 </body>
 </html>
