@@ -1,0 +1,40 @@
+:root {
+  --bg: #070b14; --panel: #0d1424; --panel-2: #121b30; --line: #1f2b45; --line-2: #2c3a5a;
+  --ink: #dbe6ff; --quiet: #8796b8; --faint: #4d5b7c;
+  --cyan: #5ee0ff; --amber: #ffb547; --red: #ff5f6d; --green: #5dd39e; --violet: #a98bff;
+  --mono: ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r: 8px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 var(--sans); }
+a { color: var(--cyan); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button {
+  background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 6px; padding: 6px 12px; cursor: pointer;
+}
+button:hover { border-color: var(--cyan); }
+button.primary { background: #123447; border-color: var(--cyan); color: var(--cyan); }
+button.danger { border-color: #5a2430; color: var(--red); }
+button.warn { background: #3a2a10; border-color: var(--amber); color: var(--amber); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+input, select, textarea {
+  background: #0a1120; border: 1px solid var(--line-2); border-radius: 6px; padding: 6px 8px; width: 100%;
+}
+textarea { font-family: var(--mono); font-size: 13px; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--cyan); }
+label { display: block; color: var(--quiet); font-size: 12px; margin: 0 0 4px; }
+.mono { font-family: var(--mono); }
+.quiet { color: var(--quiet); }
+.small { font-size: 12px; }
+.badge {
+  display: inline-block; padding: 1px 7px; border-radius: 99px; font-size: 11px; font-family: var(--mono);
+  border: 1px solid var(--line-2); color: var(--quiet); white-space: nowrap;
+}
+.badge.cyan { color: var(--cyan); border-color: #1d5566; }
+.badge.amber { color: var(--amber); border-color: #6b4a14; }
+.badge.red { color: var(--red); border-color: #5a2430; }
+.badge.green { color: var(--green); border-color: #1f5a41; }
+.badge.violet { color: var(--violet); border-color: #463a73; }
+.err { color: var(--red); }
+.ok { color: var(--green); }

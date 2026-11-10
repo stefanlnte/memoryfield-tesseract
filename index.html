@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Memoryfield · Tesseract | Hari Seldon's Psychohistory Lens</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/tesseract.css">
+</head>
+<body class="tesseract">
+  <header class="top">
+    <div class="brand">
+      <div class="title">⚛ MEMORYFIELD · TESSERACT</div>
+      <div class="subtitle">HARI SELDON PSYCHOHISTORY PRIME RADIANT — forensic instrument</div>
+    </div>
+    <div class="controls">
+      <label for="case">Case</label>
+      <select id="case"></select>
+      <div class="when"><span class="quiet small">selected date</span><span id="date" class="mono">—</span></div>
+    </div>
+  </header>
+  <div id="banner" class="banner" hidden></div>
+
+  <section class="metrics" id="metrics"></section>
+
+  <section class="middle">
+    <div class="panel field-panel">
+      <div class="panel-head"><span>— the field —</span><span id="field-note" class="quiet small"></span></div>
+      <svg id="field" viewBox="0 0 640 440" role="img" aria-label="The field: nodes sized by pressure, coloured by life-cycle state"></svg>
+      <div class="legend small">
+        <span><i class="dot exp"></i>expansion (p &gt; 200)</span><span><i class="dot res"></i>resonance (100–200)</span>
+        <span><i class="dot rem"></i>remanence (&lt; 100)</span>
+        <span><i class="ln str"></i>structural</span><span><i class="ln lea"></i>learned</span>
+        <span><i class="ln con"></i>conflict</span><span><i class="ln tmp"></i>event</span>
+      </div>
+    </div>
+    <div class="side">
+      <div class="panel">
+        <div class="panel-head"><span>— correlations —</span><span class="quiet small">pressure, last 12 frames</span></div>
+        <div id="correlations"></div>
+        <p class="quote">"The psychohistorical trend is visible only in the aggregate."</p>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span>— sources read by this date —</span><span id="src-count" class="quiet small"></span></div>
+        <div id="sources"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel timeline-panel">
+    <div class="panel-head">
+      <span>— timeline · 1789 to today —</span>
+      <span class="tl-buttons"><button id="zoom-full">Full span</button><button id="zoom-case">Case window</button></span>
+    </div>
+    <div class="tl-legend small">
+      <span><i class="tick pol"></i>political</span><span><i class="tick fin"></i>financial</span><span><i class="tick both"></i>both</span>
+      <span><i class="diamond"></i>crisis onset</span><span><i class="ln phi"></i>Φ(t) smoothed</span><span><i class="tick flag"></i>flag</span>
+      <span><i class="ln cut"></i>cutoff</span><span class="quiet">drag or click to move the date · click a crisis to open its case</span>
+    </div>
+    <svg id="timeline" role="img" aria-label="Timeline of crises from 1789 to today, with each case's Φ(t)"></svg>
+    <div id="track" class="track small"></div>
+  </section>
+
+  <footer class="foot small quiet">
+    <span>Φ(t) = αB + βC + γF · B out-of-band share · C concentration · F State collapse</span>
+    <span id="live" class="live" title="updates arrive by themselves while this page is open">○ connecting</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/tesseract.js"></script>
+</body>
+</html>
