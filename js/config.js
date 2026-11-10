@@ -3,5 +3,5 @@
 // NEVER put the service_role key here.
 window.MF_CONFIG = {
   url: "https://hvkxqgxqheaelpnftcaf.supabase.co/rest/v1/",
-  anonKey: "sb_publishable_20wkXfvPa8Zs5hgxjMrCPw_Hw3OtgUd",
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2a3hxZ3hxaGVhZWxwbmZ0Y2FmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQzMzk4NjcsImV4cCI6MjEwOTkxNTg2N30.BwdxQtDZUNcp-K-Ew5Pm9r1Qvn8bk6yjLVkHG6Bz6ig",
 };
